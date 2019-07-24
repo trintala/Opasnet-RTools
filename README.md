@@ -1,4 +1,4 @@
-# Opasnet-RTools
+# OpasnetRTools
 
 ## R-tools Server installation instructions
 
