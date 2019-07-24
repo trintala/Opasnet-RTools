@@ -1,8 +1,8 @@
 # Opasnet-RTools
 
-R-tools Server installation instructions
+## R-tools Server installation instructions
 
-0. Briefing
+### Briefing
 
 R-tools Server is a program that handles and runs code written in R. It implements interface which enables
 multiple clients to use its services and can be installed on Linux operating system (or likes, CentOS-tested).
@@ -10,13 +10,13 @@ Server acts at two different levels; interaction between clients is handled by w
 is planned to be run by restricted shell user (for improved security). The web service puts code run requests
 into the database, from where the script running in the restricted shell fetches them and runs R processes.
 
-1. Installing R
+### Installing R
 
 R-tools Server uses local R installation to run the code. Install the R and desired libraries.
 In CentOS this can be done by first installing the Epel-repository and then "yum install R".
 This installs R-code and R-devel package.
 
-2. Installing web service
+### Installing web service
 
 R-tools Server interacts with MediaWiki extensions via XML-RPC protocol. Program is written in PHP thus
 web server with PHP-interpreter is needed (e.g. Apache with PHP-support). R-tools Server also needs access
@@ -45,7 +45,7 @@ to MySQL database via PHP. Follow next steps to install (with default configurat
 - XML-RPC server functionality can be tested with web agent. Point your browser to http://<server url>/index.php
   and you should see some XML-output (faultCode 105 etc.).
   
-3. Running the code in restricted shell
+### Running the code in restricted shell
 
 It is advisable to run R code jobs by a restricted shell user. At least on CentOS this can be easily done by
 first creating symbolic link "ln -s /bin/bash /opt/rbash" and then by creating a new system user "e.g. rtools"
@@ -54,6 +54,7 @@ outside the shell and also doesn't allow the user to leave its home folder. But 
 programs to be run and this can be done by creating "bin" folder and some symbolic links under the user
 home (e.g. /home/rtools/bin). Example symbolic link setup on CentOS 6:
 
+```
 nohup -> /usr/bin/nohup
 ps -> /bin/ps
 R -> /usr/bin/R
@@ -66,17 +67,20 @@ zip -> /bin/zip
 kill -> /bin/kill
 ls -> /bin/ls
 env -> /bin/env
+```
 
 After linking required programs we still need to link the actual script that runs the code (goes thru job queue). E.g.
 
+```
 /home/rtools/run_jobs.php -> /var/www/html/rtools_server/offline/run_jobs.php
+```
 
 Now you should be able to login as "rtools" and run "php run_jobs.php". If not then check the permissions once more.
 If the script starts normally, then it begins to fetch jobs from the work queue (database) and runs them. This script
 runs infinitely until any exception occurs, when it shuts itself down. Next chapter describes one way how to keep
 "run_jobs.php" running.
 
-4. Setting up a cron script to observe and run "run_jobs.php"
+### Setting up a cron script to observe and run "run_jobs.php"
 
 R-tools Server job executor "run_jobs.php" must be running all the time in order to run jobs from the database queue.
 One way to assure this is to set up an observing parent process that restarts the "run_jobs.php" if it's not running
@@ -85,22 +89,26 @@ One way to assure this is to set up an observing parent process that restarts th
 - Make new symbolic link as alias to php executable (e.g. /home/rtools/bin/rtools-worker -> /usr/bin/php)
 - Create a new script that works as an observer and keeps "run_jobs.php" running (e.g. /home/rtools/bin/start_rtools).
 
-	#!/opt/rbash
-	line=$(ps -A | grep 'rtools-worker')
-	if [ -z "${line}" ]; then
-	    echo "Starting Rtools Worker"
-	    rtools-worker run_jobs.php &
-	fi
+```
+#!/opt/rbash
+line=$(ps -A | grep 'rtools-worker')
+if [ -z "${line}" ]; then
+    echo "Starting Rtools Worker"
+    rtools-worker run_jobs.php &
+fi
+```
 
 - Set the above script to be run by "rtools" user cron. Use crontab and insert following lines to run it once per minute:
 
-	SHELL=/opt/rbash
-	PATH=/home/rtools/bin
-	*       *       *       *       *       start_rtools
+```
+SHELL=/opt/rbash
+PATH=/home/rtools/bin
+*       *       *       *       *       start_rtools
+```
 
 - We are done! Try "killall rtools-worker" and within a minute the script should be back up and running!
 
-5. Additional configuration
+### Additional configuration
 
 OpansetUtils(Ext) package needs some configuration files to work properly. These files need to be in "offline" folder and are:
 
