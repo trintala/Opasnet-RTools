@@ -1,6 +1,7 @@
 # OpasnetRTools
 
 ## R-tools Server installation instructions
+*Note: these instructions may be out of date*
 
 ### Briefing
 
