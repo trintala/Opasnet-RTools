@@ -432,6 +432,16 @@ class RToolsServer{
     			$message  = 'Invalid query: ' . mysqli_error($this->db_link) . " query: " .$query. "\n";
     			throw new Exception($message);
 		}
+	} else {
+		// Failed to start (TODO: create more informative handling)
+		$query = 'UPDATE jobs SET status="canceled", end_at=NOW() WHERE id='.$id;
+  		$result = mysqli_query($this->db_link, $query);
+    		if ($result === false) {
+    			$message  = 'Invalid query: ' . mysqli_error($this->db_link) . " query: " .$query. "\n";
+    			throw new Exception($message);
+    		}
+		$this->remove_active_job($id);
+    		$this->remove_canceled_job($id);
 	}
     }
     
